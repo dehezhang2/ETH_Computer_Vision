@@ -40,7 +40,15 @@ if __name__ == '__main__':
 
     # Based on run_validation_epoch, write code for computing the 10x10 confusion matrix.
     confusion_matrix = np.zeros([10, 10])
-    raise NotImplementedError()
+    for batch in valid_dataloader:
+        # Forward pass only.
+        output = net(batch['input'])
+
+        # Compute the accuracy using compute_accuracy.
+        indices = torch.stack((torch.argmax(output, dim=1), batch['annotation']), dim = 1)
+        for idx in indices:
+            confusion_matrix[idx[0], idx[1]] += 1
+    print(np.sum(confusion_matrix) == valid_dataset.__len__())
     
     # Plot the confusion_matrix.
     plt.figure(figsize=[5, 5])

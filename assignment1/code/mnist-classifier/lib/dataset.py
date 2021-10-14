@@ -56,7 +56,7 @@ class MNISTDataset(Dataset):
 
         # Images are generally represented as uint8 matrices ([0 .. 255]).
         # Normalize the data between -1 and 1!
-        raise NotImplementedError()
+
         sample = normalize(sample)
         
         return {
@@ -66,6 +66,5 @@ class MNISTDataset(Dataset):
 
 
 def normalize(sample):
-    raise NotImplementedError()
-    new_sample = None
+    new_sample = 2.*(sample)/255-1
     return new_sample

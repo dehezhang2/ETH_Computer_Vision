@@ -34,11 +34,11 @@ class MLPClassifier(nn.Module):
         # Output is a single value.
         # Multiple linear layers each followed by a ReLU non-linearity (apart from the last).
         self.layers = nn.Sequential(
-            nn.Linear(2, 8),
+            nn.Linear(2, 16),
             nn.ReLU(),
-            nn.Linear(8, 8),
+            nn.Linear(16, 16),
             nn.ReLU(),
-            nn.Linear(8, 1)
+            nn.Linear(16, 1)
         )
     
     def forward(self, batch):
