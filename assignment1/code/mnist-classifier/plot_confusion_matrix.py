@@ -27,8 +27,8 @@ if __name__ == '__main__':
     )
 
     # Create the network.
-    # net = MLPClassifier()
-    net = ConvClassifier()
+    net = MLPClassifier()
+    # net = ConvClassifier()
 
     # Load best checkpoint.
     net.load_state_dict(torch.load(f'best-{net.codename}.pth')['net'])

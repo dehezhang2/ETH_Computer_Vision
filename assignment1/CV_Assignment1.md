@@ -31,7 +31,23 @@
 [Epoch 10] Acc.: 48.6111%
 ```
 
-* The accuracy is `48.6111%` which is lower than expected (`50%` for random guess). However, the data shown below is not linearly separable, so the accuracy closed to `50%` becomes **reasonable**.
+* The accuracy is `48.6111%` which is lower than expected (`50%` for random guess). However, the data shown below is not linearly separable.
+
+* If we analyze the distribution of the data, we can find that there are three cases (we assume the sizes of two classes are the same): 
+
+  * the decision boundary go through the center of circle => accuracy equals to 50%
+
+    <img src="assets/IMG_7E5E0A05344F-1.jpeg" alt="IMG_7E5E0A05344F-1" style="zoom:50%;" />
+
+  * the decision boundary have intersection with circle, but does not go through the center => accuracy larger than 50%
+
+    <img src="assets/IMG_BB61C6E67957-1.jpeg" alt="IMG_BB61C6E67957-1" style="zoom:50%;" />
+
+  * the decision boundary does not have intersection with circle => accuracy equals to 50%
+
+    <img src="assets/IMG_B090AF57182E-1.jpeg" alt="IMG_B090AF57182E-1" style="zoom:50%;" />
+
+  * Therefore, the accuracy should be larger than 50%, but the result accuracy is less than 50%, which is **not expected**. This implies that the linear model is not well converged (may be land in some local minimum) when the dataset is not linearly separable.
 
 ### 2.4 Multi-layer perceptron
 
@@ -62,12 +78,13 @@
 ```
 
 * The final accuracy is `99.8016%`, which is better than the linear classifier. 
+* The hidden layers and activation functions introduce non-linearity into the model. According to the Universal Approximation Theorem, any continuous function $C(I_n)$ on the n-dimensional unit cube $I_n$ can be approximated by a MLP with a hidden layer (with enough number of neurons). That means the front layers of MLP will automatically transform the coordinate to make the data linearly separable for the last layer. Therefore, this structure improves the performance.
 
 ### 2.5 Feature transform
 
 **Question**: Think of a coordinate system that renders the two classes linearly separable and justify your choice.
 
-![Screen Shot 2021-10-14 at 2.42.46 PM](assets/Screen Shot 2021-10-14 at 2.42.46 PM.png)
+<img src="assets/Screen Shot 2021-10-14 at 2.42.46 PM.png" alt="Screen Shot 2021-10-14 at 2.42.46 PM" style="zoom:50%;" />
 
 * By observation, the data is not linearly separable since it is a circle. However, by changing the coordinate system to polar system or simply use $(x,y)\mapsto({x^2}, {y^2})$. Then the data will distribute on two lines:
   $$
@@ -108,7 +125,7 @@
 
 ### 3.3 Multi-layer perceptron
 
-**Question**: Implement a linear classifier by filling in the `MLPClassifier ` class from `lib/networks.py`. What performance do you obtain?
+**Question**: Implement a linear classifier by filling in the `MLPClassifier ` class from `lib/networks.py`. What performance do you obtain? `91.2600%`
 
 ```python
 self.layers = nn.Sequential(
@@ -135,7 +152,7 @@ self.layers = nn.Sequential(
 [Epoch 05] Acc.: 91.2600%
 ```
 
-**Question**: Next, use an MLP with one hidden layer of dimension 32 followed by ReLU and then the final linear prediction layer. What is the new testing accuracy?
+**Question**: Next, use an MLP with one hidden layer of dimension 32 followed by ReLU and then the final linear prediction layer. What is the new testing accuracy?`93.6400%`
 
 ```python
 self.layers = nn.Sequential(
@@ -166,7 +183,7 @@ self.layers = nn.Sequential(
 
 ### 3.4 Convolutional network
 
-**Question**: What testing accuracy do you obtain with this architecture?
+**Question**: What testing accuracy do you obtain with this architecture? `98.4500%`
 
 ```shell
 100%|███████████████████████████████████████| 3750/3750 [00:42<00:00, 88.20it/s]
@@ -204,13 +221,19 @@ self.layers = nn.Sequential(
 
 $$
 Parameter\_Num_{MLP} = (784 + 1)\times32 + (32 + 1) \times 10=25450\\
-Parameter\_Num_{convolution} = 8\times(1+3\times3\times1)  + 16\times(1+3\times3\times8) \\+ 32\times(1+3\times3\times16) = 5888
+Parameter\_Num_{convolution} = 8\times(1+3\times3\times1)  + 16\times(1+3\times3\times8) \\+ 32\times(1+3\times3\times16) + (32+1)\times10 = 6218
 $$
 
 ### 3.6 Confusion matrix
 
 **Question**: The confusion matrix $M_{i,j}$ is a useful tool for understanding the performance of a classifier. It is defined as follows: $M_{i,j}$ is the number of test samples for which the network predicted $i$, but the ground-truth label was $j$. Ideally, in the case of `100%` accuracy, this will be a diagonal matrix. Based on the run validation epoch function from `train.py`, update `plot_confusion_matrix.py` to compute the confusion matrix. Provide the plot in the report and comment the results.
 
-![Confusion_matrix](assets/Confusion_matrix.png)
+* **Confusion matrix for CNN (left)**: The summation of the matrix equals to the size of the dataset. The performance of the model is good because the matrix is very closed to a diagonal matrix. 
 
-* The summation of the matrix equals to the size of the dataset. The performance of the model is good because the matrix is very closed to a diagonal matrix. 
+  <img src="assets/Confusion_matrix.png" alt="Confusion_matrix" style="zoom:36%;" />
+
+* **Confusion matrix for MLP (right)**: The summation of the matrix equals to the size of the dataset. But the values are more dense than the CNN result. Therefore the performance is not as good as CNN model.
+
+  <img src="assets/MLP_confusion.png" alt="MLP_confusion" style="zoom:36%;" />
+
+. 
