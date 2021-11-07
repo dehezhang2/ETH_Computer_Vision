@@ -2,4 +2,5 @@
 .DS_Store
 out
 logs
+data
 __pycache__
