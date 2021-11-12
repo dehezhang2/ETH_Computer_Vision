@@ -25,7 +25,7 @@ $$
 
 Question: **Potential problems if we skip this step**
 
-The data may contain very large or small values, which will affect the constraint matrix and increase the error when we do SVD to the constraint matrix.
+The data may contain very large or small values, which will affect the constraint matrix and increase the error when we do SVD to the constraint matrix. If we don’t normalize the data, and the coefficients in $X^T$ is really big, a small noise in $x$ will change constraint matrix by a large error.  
 
 ### (b) Direct Linear Transform (DLT)
 
@@ -123,3 +123,76 @@ The projection result is shown in the following figure:
 ![calibration](assets/calibration.png)
 
 The red dots has the similar position with the black dots. Therefore, the estimated values seem reasonable. 
+
+## 2.3 Structure from Motion
+
+### (a) Essential Matrix Estimation
+
+* The essential matrix is calculated by the epipolar constraint: $\hat{x_1}E\hat{x_2}=0$, where $\hat{x} = K^{-1}x$ (normalized 2D image points)
+
+* The matrix is solved by DLT:
+  $$
+  \hat{x_1}E\hat{x_2} \\= [\hat{x_1^1}\hat{x_2^1}, \hat{x_1^1}\hat{y_2^1},\hat{x_1^1},\hat{y_1^1}\hat{x_2^1},\hat{y_1^1}\hat{y_2^1},\hat{y_1^1},\hat{x_2^1},\hat{y_2^1},1][e_{11},e_{12},e_{13},e_{21},e_{22},e_{23},e_{31},e_{32},e_{33}]^T = 0 \\
+  Ae=0\\
+  $$
+
+  * where $A$‘s row vector correpsonds to a match between two images.
+
+* Then we set the first two singular value of the essential matrix to be $1$:
+  $$
+  USV^T = SVD(\hat{E}) \\
+  E = U\begin{bmatrix}
+  1 & 0 &0\\
+  0 & 1 &0\\
+  0 & 0 &0\\
+  \end{bmatrix} V^T
+  $$
+
+### (b) Point Triangulation
+
+* For triangulation, we just solve the nullspace for the constraint matrix $C$ by DLT. 
+  $$
+  \begin{bmatrix}
+  \lambda x_1\\
+  \lambda x_2\\
+  \lambda\\
+  \end{bmatrix} = 
+  \begin{bmatrix}
+  P_1 X\\
+  P_2 X\\
+  P_3 X\\
+  \end{bmatrix} \\ \mapsto \begin{bmatrix}
+  P_3 X x_1\\
+  P_3 X x_2\\
+  \end{bmatrix} = 
+  \begin{bmatrix}
+  P_1 X\\
+  P_2 X\\
+  \end{bmatrix} \mapsto \begin{bmatrix}
+  P_3  x_1-P_1\\
+  P_3  x_2-P_2\\
+  \end{bmatrix}X = 0\mapsto CX=0 \\ \\
+  $$
+
+  * C is stacked horizontally according to number of views
+
+* Then we remove the points fall behind the cameras. 
+
+### (c) Decomposition of Essential Matrix
+
+* The obtained essential matrix is decomposed into $R[t]_{\cross}$ by using SVD and results in four solutions (corresponding to four poses). For each pose ($R, t$), we do triangulation, and select the pose with maximum number of points in front of the camera. 
+
+### (d) Absolute Pose Estimation
+
+* After calculating essential matrix and triangulation for two cameras, we iteratively use calculated 3D points to calibrate the next camera. 
+
+### (e) Map Extension
+
+* The calibrated new camera is then used to generate new 3D points, (d) and (e) step are iteratively applied to each camera that is not registered. 
+
+
+
+The result is as shown below:
+
+![Screen Shot 2021-11-12 at 5.03.44 PM](assets/Screen Shot 2021-11-12 at 5.03.44 PM.png)
+
