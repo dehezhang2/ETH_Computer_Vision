@@ -3,4 +3,5 @@
 out
 logs
 data
+dtu_dataset
 __pycache__
