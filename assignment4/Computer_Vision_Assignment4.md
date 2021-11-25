@@ -1,6 +1,6 @@
 # Computer Vision Assignment 04: Model Fitting & Multi-View Stereo
 
-## 1 File Structure
+## 1. File Structure
 
 **!!! important**: Pytorch 1.10.0 is used in my assignment, please find `my_env.yaml` to create the environment. 
 
@@ -30,7 +30,7 @@ root_directory
 
 
 
-## 2 Model Fitting
+## 2. Model Fitting
 
 ### 2.1.3 Results
 
@@ -45,7 +45,7 @@ Estimated coefficients (true, linear regression, RANSAC):
 
 ```
 
-## 3 Multi-View Stereo
+## 3. Multi-View Stereo
 
 ### 3.2.2 Differentiable Warping
 
@@ -71,7 +71,31 @@ $$
 
 ### 3.4 Test
 
-1. 
+1. Geometric consistency filtering: 
+
+   * The function `reproject_with_depth` : calculate reprojected coordinate and depth of reference image
+
+     * Note that we during reprojection, we use the estimated $d_{src}$ to substitute the depth from the previous calculation. 
+
+     $$
+     {\bf X}_{world} = ({\bf K}_{ref}{\bf P}_{ref})^{-1}(d_{ref}{\bf x}_{ref})\ \ where\ {\bf P}_{ref}\ is\ extrinsic\ matrix\\ 
+     {\bf x}_{src} = {\bf K}_{src}{\bf P}_{src}{\bf X}_{world} \\
+     {\bf x}^{reproj}_{src} =({\bf x}_{src} /{\bf x}_{src}^{(2)})d_{src}\\ 
+     {\bf X}^{reproj}_{world} = ({\bf K}_{src}{\bf P}_{src})^{-1}({\bf x}^{reproj}_{src}) \\
+     {\bf x}^{reproj}_{ref} = {\bf K}_{ref}{\bf P}_{ref}{\bf X}^{reproj}_{world} \\
+     $$
+
+   * The function `check_geometric_consistency`:
+
+     * call function `reproject_with_depth` and get reprojected coordinate and depth of reference image
+     * calculate the distance of coordinate and depth respectively
+     * select a subset of pixels in the reference image such that the depth and pixel coordinate is reasonable (with small error). That means the pixel is well matched between the given reference image and source image. 
+     * return the mask and reprojected depth values. 
+
+   * The filtering process can filter the points that is occluded in one image but not in another image. 
+
+     * When we average the depth values, we only consider reasonable reprojected values
+     * When we reconstruct the 3D points, we only consider pixels that has not less than three reasonable matching. 
 
 2. For all the scenes, visualize (visualize ply.py) and take screenshots of the point clouds in Open3D.
 
@@ -81,8 +105,12 @@ $$
 
    ### 3.5 Questions
 
-   1. In our method, we sample depth values, , that are uniformly
+   1. In our method, we sample depth value are uniformly distributed in the range` [DEPTH MIN, DEPTH MAX]`. We can also sample depth values that are uniformly distributed in the *inverse* range `[1/DEPTH MAX, 1/DEPTH MIN]`. Which do you think is more suitable for large-scale scenes?
 
-   distributed in the range [DEPTH MIN, DEPTH MAX]. We can also sample depth values that are uniformly distributed in the *inverse* range [1/DEPTH MAX, 1/DEPTH MIN]. Which do you think is more suitable for large-scale scenes?
+      ![Screen Shot 2021-11-25 at 7.24.09 PM](assets/Screen Shot 2021-11-25 at 7.24.09 PM.png)
+
+      **Answer**: I think the uniform range `[DEPTH MIN, DEPTH MAX]` is better for large-scale scenes. Because as shown in the picture, the inverse range tends to draw more samples that closed to the minimum value, which ignores the large depth value. This is bad for large-scale scenes with large depth variance. 
 
    2. In our method, we take the average while integrating the matching similarity from several source views. Do you think it is robust to some challenging situations such as occlusions?
+
+      Answer: I think it can solve the occlusion situation. For a pair of warpped source image and reference image, given a pixel position, depth and feature group, the similarity is fixed. If the pixel is occluded in the source image, the similarity is not valid. However, by averaging over different source images, some source images with this pixel not occluded take part in the similarity value, which improves the similarity. 
