@@ -28,8 +28,6 @@ root_directory
 
 ```
 
-
-
 ## 2. Model Fitting
 
 ### 2.1.3 Results
@@ -109,8 +107,13 @@ $$
 
       ![Screen Shot 2021-11-25 at 7.24.09 PM](assets/Screen Shot 2021-11-25 at 7.24.09 PM.png)
 
-      **Answer**: I think the uniform range `[DEPTH MIN, DEPTH MAX]` is better for large-scale scenes. Because as shown in the picture, the inverse range tends to draw more samples that closed to the minimum value, which ignores the large depth value. This is bad for large-scale scenes with large depth variance. 
+      **Answer**: I think the inverse range `[1/DEPTH MAX, 1/DEPTH MIN]` is better for large-scale scenes. Because as shown in the picture, the inverse range tends to draw more samples that closed to the minimum value. In the real-wolrd situation for large scale image, the point with high depth tends to have more uncertainty and there are more points in the image with low depth. Therefore we don’t need to sample too much large depth values 
 
    2. In our method, we take the average while integrating the matching similarity from several source views. Do you think it is robust to some challenging situations such as occlusions?
 
-      Answer: I think it can solve the occlusion situation. For a pair of warpped source image and reference image, given a pixel position, depth and feature group, the similarity is fixed. If the pixel is occluded in the source image, the similarity is not valid. However, by averaging over different source images, some source images with this pixel not occluded take part in the similarity value, which improves the similarity. 
+      **Answer**: 
+      
+      (1) **If we compare the result with two view (one source one reference) vision**, I think taking average has a better performance. For a pair of warpped source image and reference image, given a pixel position, depth and feature group, the similarity is fixed. If the pixel is occluded in the source image, the similarity is not valid. However, by averaging over different source images, some source images with this pixel not occluded take part in the similarity value, which improves the similarity. 
+      
+      (2) **If we compare the result with normal match (without occlusion situation)**, I think it is not robust enough to take the average. Because if the point on all the source image is not occluded, the similarity is the most accurate. But if there is one source view occluded, it will make the average similarity less accurate.  
+
