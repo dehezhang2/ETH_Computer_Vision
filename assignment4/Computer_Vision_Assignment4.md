@@ -107,7 +107,7 @@ $$
 
       ![Screen Shot 2021-11-25 at 7.24.09 PM](assets/Screen Shot 2021-11-25 at 7.24.09 PM.png)
 
-      **Answer**: I think the inverse range `[1/DEPTH MAX, 1/DEPTH MIN]` is better for large-scale scenes. Because as shown in the picture, the inverse range tends to draw more samples that closed to the minimum value. In the real-wolrd situation for large scale image, the point with high depth tends to have more uncertainty and there are more points in the image with low depth. Therefore we don’t need to sample too much large depth values 
+      **Answer**: I think the inverse range `[1/DEPTH MAX, 1/DEPTH MIN]` is better for large-scale scenes. Because as shown in the picture, the inverse range tends to draw more samples that closed to the minimum value. In the real-wolrd situation for large scale image, the point with high depth tends to have more uncertainty and the depth value tends to be not accurate. Therefore, we can give more weight to closer points to improve the accuracy. 
 
    2. In our method, we take the average while integrating the matching similarity from several source views. Do you think it is robust to some challenging situations such as occlusions?
 
