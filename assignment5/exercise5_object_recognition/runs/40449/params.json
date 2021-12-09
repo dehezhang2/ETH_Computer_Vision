@@ -1,0 +1,10 @@
+{
+    "batch_size": 128,
+    "fc_layer": 512,
+    "log_step": 100,
+    "lr": 0.0001,
+    "num_epoch": 50,
+    "root": "data/data_cnn/cifar-10-batches-py",
+    "save_dir": "runs",
+    "val_step": 100
+}
